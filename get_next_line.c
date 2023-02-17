@@ -67,7 +67,7 @@ char	*get_next_line(int fd)
 	{
 		free(str);
 		count = 1;
-		return (res);
+		return (0);
 	}
 	else if (i == 0 && count == 1)
 	{
@@ -125,8 +125,8 @@ char	*get_next_line(int fd)
 {
 	int fd = open("README.md", O_RDONLY);
 	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
-	printf("%s", get_next_line(fd));
+	//printf("%s", get_next_line(fd));
+	//printf("%s", get_next_line(fd));
+	//printf("%s", get_next_line(fd));
 	close(fd);
 }*/
