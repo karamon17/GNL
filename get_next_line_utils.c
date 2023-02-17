@@ -57,3 +57,22 @@ size_t	ft_strlen(const char *str)
 		i++;
 	return (i);
 }
+
+char	*ft_strdup(const char *s1)
+{
+	int		len;
+	char	*str;
+	int		i;
+
+	len = ft_strlen(s1) + 1;
+	str = (char *)malloc(len * sizeof(char));
+	if (!str)
+		return (0);
+	i = 0;
+	while (i < len)
+	{
+		((unsigned char *)str)[i] = ((unsigned char *)s1)[i];
+		i++;
+	}
+	return (str);
+}

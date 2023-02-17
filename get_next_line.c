@@ -16,21 +16,23 @@
 #include <stdio.h>
 
 #ifndef	BUFFER_SIZE
-#define BUFFER_SIZE 3000
+#define BUFFER_SIZE 1
 #endif
 
 char	*get_next_line(int fd)
 {
 	char		*res;
 	static char	*next;
+	static int	count;
 	char		*nextnew;
 	char		*freenext;
 	char		*str;
-	char		*search;
-	char		tmp[2];
+	char		*strlast;
+	char		tmp;
 	int			i;
 
-	i = 0;
+	if (fd < 0)
+		return (0);
 	res = (char *)malloc(sizeof(char));
 	if (!res)
 		return (0);
@@ -40,37 +42,41 @@ char	*get_next_line(int fd)
 		nextnew = ft_strchr(next, '\n');
 		if (nextnew)
 		{
-			*nextnew = 0;
-			freenext = res;
-			res = ft_strjoin(res, next);
+			tmp = nextnew[1];
+			nextnew[1] = 0;
+			res = ft_strjoin("\0", next);
 			if (!res)
 				return (0);
-			if (freenext)
-				free(freenext);
+			nextnew[1] = tmp;
 			next = nextnew + 1;
-			if (ft_strlen(next) == 0)
-				free(next - 1);
 			return(res);
 		}
 		else
 		{
-			freenext = res;
-			res = ft_strjoin(res, next);
+			res = ft_strjoin("\0", next);
 			if (!res)
 				return (0);
-			if (freenext)
-				free(freenext);
-			next = 0;
+			free(next);
 		}
-		//printf("%s\n", next);
 	}
 	str = (char *)malloc(BUFFER_SIZE + 1);
 	if (!str)
 		return (0);
 	i = read(fd, str, BUFFER_SIZE);
+	if (i == 0 && count == 0)
+	{
+		free(str);
+		count = 1;
+		return (res);
+	}
+	else if (i == 0 && count == 1)
+	{
+		free(str);
+		free(res);
+		return (0);
+	}
 	str[i] = 0;
-	search = ft_strchr(str, '\n');
-	while (!search && BUFFER_SIZE == ft_strlen(str))
+	while (!ft_strchr(str, '\n') && BUFFER_SIZE == ft_strlen(str))
 	{
 		freenext = res;
 		res = ft_strjoin(res, str);
@@ -82,54 +88,45 @@ char	*get_next_line(int fd)
 		if (!i)
 			return (res);
 		str[i] = 0;
-		search = ft_strchr(str, '\n');
 	}
-	i = 0;
-	while(str[i] && str[i] != '\n')
+	if (ft_strchr(str, '\n'))
 	{
-		tmp[0] = str[i];
-		tmp[1] = 0;
+		strlast = str;
+		str = ft_strchr(str, '\n');
+		tmp = str[1];
+		str[1] = 0;
 		freenext = res;
-		res = ft_strjoin(res, tmp);
+		res = ft_strjoin(res, strlast);
 		if (!res)
 			return (0);
-		if (freenext)
-			free(freenext);
-		i++;
+		free(freenext);
+		str[1] = tmp;
+		str++;
 	}
-	i++;
+	else
+	{
+		freenext = res;
+		res = ft_strjoin(res, str);
+		if (!res)
+			return (0);
+		free(freenext);
+	}
 	if (!next)
 	{
-		next = (char *)malloc(sizeof(char));
+		next = ft_strdup(str);
 		if (!next)
 			return (0);
-		next[0] = 0;
-		while(str[i])
-		{
-			tmp[0] = str[i];
-			tmp[1] = 0;
-			freenext = next;
-			next = ft_strjoin(next, tmp);
-			if (!next)
-				return (0);
-			if (freenext)
-				free(freenext);
-			i++;
-		}
 	}
-	free(str);
-	if (ft_strlen(next) == 0)
-		free(next);
-	//printf("test%s\n", next);
+	free(strlast);
 	return (res);
 }
 
-int main()
+/*int main()
 {
 	int fd = open("README.md", O_RDONLY);
-	printf("%s\n", get_next_line(fd));
-	printf("%s\n", get_next_line(fd));
-	//printf("%s\n", get_next_line(fd));
-	//printf("%s\n", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
 	close(fd);
-}
+}*/
