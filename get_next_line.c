@@ -16,108 +16,105 @@
 #include <stdio.h>
 
 #ifndef	BUFFER_SIZE
-#define BUFFER_SIZE 1
+#define BUFFER_SIZE 10000
 #endif
 
-char	*get_next_line(int fd)
+static void	ft_strcpy(char *dst, const char *src)
 {
-	char		*res;
-	static char	*next;
-	static int	count;
-	char		*nextnew;
-	char		*freenext;
-	char		*str;
-	char		*strlast;
-	char		tmp;
-	int			i;
+	int	i;
 
-	if (fd < 0)
-		return (0);
-	res = (char *)malloc(sizeof(char));
-	if (!res)
-		return (0);
-	res[0] = 0;
-	if (next)
+	i = 0;
+	while (src[i])
 	{
-		nextnew = ft_strchr(next, '\n');
-		if (nextnew)
+		dst[i] = src[i];
+		i++;
+	}
+	dst[i] = '\0';
+}
+
+static char *ft_checknext(char **next, char **res)
+{
+	char	*p_n;
+	char	*frres;
+
+	p_n = 0;
+	if (*next)
+	{
+		if ((p_n = ft_strchr(*next, '\n')))
 		{
-			tmp = nextnew[1];
-			nextnew[1] = 0;
-			res = ft_strjoin("\0", next);
-			if (!res)
+			*p_n = 0;
+			frres = *res;
+			*res = ft_strdup(*next);
+			if (!(*res))
 				return (0);
-			nextnew[1] = tmp;
-			next = nextnew + 1;
-			return(res);
+			free(frres);
+			*res = ft_strjoin(*res, "\n");
+			if (!(*res))
+				return (0);
+			p_n++;
+			ft_strcpy(*next, p_n);
 		}
 		else
 		{
-			res = ft_strjoin("\0", next);
-			if (!res)
+			*res = ft_strdup(*next);
+			if (!(*res))
 				return (0);
-			free(next);
+			free(*next);
+			*next = 0;
 		}
 	}
-	str = (char *)malloc(BUFFER_SIZE + 1);
+	else
+	{	
+		*res = ft_calloc(1, 1);
+		if (!(*res))
+			return (0);
+	}
+	return (p_n);
+}
+
+char	*get_next_line(int fd)
+{
+	char static	*next;
+	char		*res;
+	char		*str;
+	char		*p_n;
+	int			read_bites;
+
+	if (fd < 0)
+		return (0);
+	res = 0;
+	p_n = ft_checknext(&next, &res);
+	str = malloc(BUFFER_SIZE + 1);
 	if (!str)
 		return (0);
-	i = read(fd, str, BUFFER_SIZE);
-	if (i == 0 && count == 0)
+	while(!p_n && (read_bites = read(fd, str, BUFFER_SIZE))  > 0)
 	{
-		free(str);
-		count = 1;
+		str[read_bites] = 0;
+		if ((p_n = ft_strchr(str, '\n')))
+		{
+			*p_n = 0;
+			p_n++;
+			
+			next = ft_strdup(p_n);
+			if (!next)
+				return (0);
+			res = ft_strjoin(res, str);
+			if (!res)
+				return (0);
+			res = ft_strjoin(res, "\n");
+			if (!res)
+				return (0);
+		}
+		else
+		{
+			res = ft_strjoin(res, str);
+			if (!res)
+				return (0);
+		}
+	}
+	free(str);
+	if (res[0] == 0)
 		return (0);
-	}
-	else if (i == 0 && count == 1)
-	{
-		free(str);
-		free(res);
-		return (0);
-	}
-	str[i] = 0;
-	while (!ft_strchr(str, '\n') && BUFFER_SIZE == ft_strlen(str))
-	{
-		freenext = res;
-		res = ft_strjoin(res, str);
-		if (!res)
-			return (0);
-		if (freenext)
-			free(freenext);
-		i = read(fd, str, BUFFER_SIZE);
-		if (!i)
-			return (res);
-		str[i] = 0;
-	}
-	if (ft_strchr(str, '\n'))
-	{
-		strlast = str;
-		str = ft_strchr(str, '\n');
-		tmp = str[1];
-		str[1] = 0;
-		freenext = res;
-		res = ft_strjoin(res, strlast);
-		if (!res)
-			return (0);
-		free(freenext);
-		str[1] = tmp;
-		str++;
-	}
-	else
-	{
-		freenext = res;
-		res = ft_strjoin(res, str);
-		if (!res)
-			return (0);
-		free(freenext);
-	}
-	if (!next)
-	{
-		next = ft_strdup(str);
-		if (!next)
-			return (0);
-	}
-	free(strlast);
 	return (res);
 }
 
@@ -125,8 +122,10 @@ char	*get_next_line(int fd)
 {
 	int fd = open("README.md", O_RDONLY);
 	printf("%s", get_next_line(fd));
-	//printf("%s", get_next_line(fd));
-	//printf("%s", get_next_line(fd));
-	//printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
+	printf("%s", get_next_line(fd));
 	close(fd);
 }*/

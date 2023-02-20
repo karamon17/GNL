@@ -12,7 +12,7 @@
 
 #include "get_next_line.h"
 
-char	*ft_strjoin(char const *s1, char const *s2)
+char	*ft_strjoin(char *s1, char const *s2)
 {
 	char	*res;
 	int		i;
@@ -33,6 +33,7 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	while (s2[j])
 		res[i++] = s2[j++];
 	res[i] = 0;
+	free(s1);
 	return (res);
 }
 
@@ -75,4 +76,23 @@ char	*ft_strdup(const char *s1)
 		i++;
 	}
 	return (str);
+}
+
+void	*ft_calloc(size_t count, size_t size)
+{
+	void			*p;
+	size_t			i;
+	unsigned char	*ptr;
+
+	p = malloc(count * size);
+	if (!p)
+		return (0);
+	i = 0;
+	ptr = (unsigned char *)p;
+	while (i < count * size)
+	{
+		ptr[i] = 0;
+		i++;
+	}
+	return (p);
 }
