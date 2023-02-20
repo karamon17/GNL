@@ -11,13 +11,6 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdio.h>
-
-#ifndef	BUFFER_SIZE
-#define BUFFER_SIZE 10000
-#endif
 
 static void	ft_strcpy(char *dst, const char *src)
 {
@@ -32,7 +25,7 @@ static void	ft_strcpy(char *dst, const char *src)
 	dst[i] = '\0';
 }
 
-static char *ft_checknext(char **next, char **res)
+static char	*ft_checknext(char **next, char **res)
 {
 	char	*p_n;
 	char	*frres;
@@ -40,7 +33,8 @@ static char *ft_checknext(char **next, char **res)
 	p_n = 0;
 	if (*next)
 	{
-		if ((p_n = ft_strchr(*next, '\n')))
+		p_n = ft_strchr(*next, '\n');
+		if ((p_n))
 		{
 			*p_n = 0;
 			frres = *res;
@@ -87,7 +81,7 @@ char	*get_next_line(int fd)
 	str = malloc(BUFFER_SIZE + 1);
 	if (!str)
 		return (0);
-	while(!p_n && (read_bites = read(fd, str, BUFFER_SIZE))  > 0)
+	while(!p_n && (read_bites = read(fd, str, BUFFER_SIZE)) > 0)
 	{
 		str[read_bites] = 0;
 		if ((p_n = ft_strchr(str, '\n')))
