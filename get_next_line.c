@@ -114,7 +114,10 @@ char	*get_next_line(int fd)
 	}
 	free(str);
 	if (res[0] == 0)
+	{
+		free(res);
 		return (0);
+	}
 	return (res);
 }
 
